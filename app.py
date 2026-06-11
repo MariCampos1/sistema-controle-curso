@@ -3,6 +3,7 @@ from datetime import datetime
 from openpyxl import Workbook
 import json
 import os
+import uuid
 
 app = Flask(__name__)
 
@@ -117,6 +118,7 @@ def adicionar():
     professor = request.form["professor"]
 
     novo_aluno = {
+        "id": str(uuid.uuid4()),
         "nome": nome,
         "curso": curso,
         "professor": professor,
@@ -135,58 +137,64 @@ def adicionar():
 # -------------------------
 # PRESENÇA
 # -------------------------
-@app.route("/presenca/<int:index>")
-def presenca(index):
+@app.route("/presenca/<id_aluno>")
+def presenca(id_aluno):
     alunos = carregar_dados()
 
-    if alunos[index].get("presente", False):
-
-        alunos[index]["presente"] = False
-        alunos[index]["data_presenca"] = ""
-
-    else:
-
-        alunos[index]["presente"] = True
-        alunos[index]["data_presenca"] = datetime.now().strftime("%d/%m/%Y")
+    for aluno in alunos:
+        if aluno.get("id") == id_aluno:
+            if aluno.get("presente", False):
+                aluno["presente"] = False
+                aluno["data_presenca"] = ""
+            else:
+                aluno["presente"] = True
+                aluno["data_presenca"] = datetime.now().strftime("%d/%m/%Y")
+            break
 
     salvar_dados(alunos)
-
-    return redirect("/#alunos")
+    return redirect("/")
 
 # -------------------------
 # PAGAMENTO
 # -------------------------
-@app.route("/pagamento/<int:index>")
-def pagamento(index):
+@app.route("/pagamento/<id_aluno>")
+def pagamento(id_aluno):
     alunos = carregar_dados()
 
-    alunos[index]["pagamento"] = not alunos[index].get("pagamento", False)
+    for aluno in alunos:
+        if aluno.get("id") == id_aluno:
+            aluno["pagamento"] = not aluno.get("pagamento", False)
+            break
 
     salvar_dados(alunos)
-    return redirect("/#alunos")
-
+    return redirect("/")
 
 # -------------------------
 # ALIMENTO
 # -------------------------
-@app.route("/alimento/<int:index>")
-def alimento(index):
+@app.route("/alimento/<id_aluno>")
+def alimento(id_aluno):
     alunos = carregar_dados()
 
-    alunos[index]["alimento"] = not alunos[index].get("alimento", False)
+    for aluno in alunos:
+        if aluno.get("id") == id_aluno:
+            aluno["alimento"] = not aluno.get("alimento", False)
+            break
 
     salvar_dados(alunos)
-    return redirect("/#alunos")
+    return redirect("/")
 
-@app.route("/excluir/<int:index>")
-def excluir(index):
+@app.route("/excluir/<id_aluno>")
+def excluir(id_aluno):
     alunos = carregar_dados()
 
-    if 0 <= index < len(alunos):
-        alunos.pop(index)
+    alunos = [
+        aluno for aluno in alunos
+        if aluno.get("id") != id_aluno
+    ]
 
     salvar_dados(alunos)
-    return redirect("/#alunos")
+    return redirect("/")
 
 # -------------------------
 # RODAR SERVIDOR

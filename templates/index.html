@@ -173,7 +173,7 @@
                     </td>
                     <td class="actions">
 
-                    <a href="/presenca/{{ loop.index0 }}">
+                    <a href="/presenca/{{ a.id }}">
                         {% if a.presente %}
                             ❌ Remover Presença
                         {% else %}
@@ -181,7 +181,7 @@
                         {% endif %}
                     </a>
 
-                    <a href="/pagamento/{{ loop.index0 }}">
+                    <a href="/pagamento/{{ a.id }}">
                         {% if a.pagamento %}
                             💸 Desfazer Pagamento
                         {% else %}
@@ -189,7 +189,7 @@
                         {% endif %}
                     </a>
 
-                    <a href="/alimento/{{ loop.index0 }}">
+                    <a href="/alimento/{{ a.id }}">
                         {% if a.alimento %}
                             ❌ Remover Entrega
                         {% else %}
@@ -197,7 +197,7 @@
                         {% endif %}
                     </a>
 
-                    <a  href="/excluir/{{ loop.index0 }}"
+                    <a  href="/excluir/{{ a.id }}"
                         style="color:red;"
                         onclick="return confirm('Deseja excluir este aluno?')">
                         🗑 Excluir       
