@@ -1,0 +1,181 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    background-color: #f4f4f4;
+}
+
+.container {
+    max-width: 1200px;
+    margin: auto;
+}
+
+h1 {
+    text-align: center;
+    color: #333;
+}
+
+.card {
+    background: white;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 2px 5px rgba(0,0,0,0.1);
+}
+
+form {
+    margin-bottom: 15px;
+}
+
+input,
+select {
+    padding: 10px;
+    margin: 5px;
+    width: 250px;
+    max-width: 100%;
+}
+
+button {
+    padding: 10px 15px;
+    cursor: pointer;
+    border: none;
+    border-radius: 5px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+}
+
+th {
+    background-color: #333;
+    color: white;
+    padding: 12px;
+}
+
+td {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+.actions a {
+    display: block;
+    margin: 5px 0;
+    text-decoration: none;
+}
+
+.actions a:hover {
+    text-decoration: underline;
+}
+
+/* CELULAR */
+@media (max-width: 768px) {
+
+    body {
+        margin: 10px;
+    }
+
+    .card {
+        padding: 10px;
+    }
+
+    input,
+    select,
+    button {
+        width: 100%;
+        margin-bottom: 10px;
+        box-sizing: border-box;
+    }
+
+    table {
+        display: block;
+        overflow-x: auto;
+    }
+
+    td,
+    th {
+        font-size: 14px;
+    }
+    
+}
+
+.btn-limpar {
+        display: inline-block;
+        padding: 10px 15px;
+        background: #ddd;
+        color: black;
+        text-decoration: none;
+        border-radius: 5px;
+        margin-left: 10px;
+    }
+
+    .btn-limpar:hover {
+        background: #ccc;
+    }
+
+.dashboard {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+.card-resumo {
+    flex: 1;
+    min-width: 120px;
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0px 2px 5px rgba(0,0,0,0.1);
+}
+
+.card-resumo h3 {
+    font-size: 30px;
+    margin: 0;
+}
+
+.card-resumo p {
+    font-size: 28px;
+    font-weight: bold;
+    margin: 10px 0;
+}
+
+.card-resumo span {
+    color: #666;
+}
+
+@media (max-width: 768px) {
+    .dashboard {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+.btn-exportar {
+    display: inline-block;
+    padding: 10px 15px;
+    background: #2e7d32;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    margin-bottom: 15px;
+}
+
+.btn-exportar:hover {
+    background: #1b5e20;
+}
+
+.btn-nova-chamada {
+    display: inline-block;
+    padding: 10px 15px;
+    background: #f57c00;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    margin-left: 10px;
+}
+
+.btn-nova-chamada:hover {
+    background: #e65100;
+}

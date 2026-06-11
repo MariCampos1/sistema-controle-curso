@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Sistema de Controle do Curso</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>📚 Controle do Curso</h1>
+
+    <!-- FORMULÁRIO -->
+    <div class="card">
+        <h2>📊 Relatório Geral</h2>
+
+        <div class="dashboard">
+
+            <div class="card-resumo">
+                <h3>👥</h3>
+                <p>{{ total_alunos }}</p>
+                <span>Alunos</span>
+            </div>
+
+            <div class="card-resumo">
+                <h3>✅</h3>
+                <p>{{ total_presentes }}</p>
+                <span>Presentes</span>
+            </div>
+
+            <div class="card-resumo">
+                <h3>💰</h3>
+                <p>{{ total_pagamentos }}</p>
+                <span>Pagamentos</span>
+            </div>
+
+            <div class="card-resumo">
+                <h3>🍞</h3>
+                <p>{{ total_alimentos }}</p>
+                <span>Alimentos</span>
+            </div>
+
+        </div>
+
+        <h2>Cadastro</h2>
+
+        <form method="GET">
+
+            <input
+                type="text"
+                name="busca"
+                placeholder="Pesquisar aluno"
+                value="{{ busca }}">
+
+            <select name="curso">
+
+                <option value="">Todos os cursos</option>
+
+                {% for curso in cursos %}
+                <option value="{{ curso }}"
+                    {% if curso == curso_filtro %}selected{% endif %}>
+                    {{ curso }}
+                </option>
+                {% endfor %}
+
+            </select>
+
+            <select name="professor">
+                <option value="">Todos os professores</option>
+
+                {% for professor in professores %}
+                    <option value="{{ professor }}"
+                        {% if professor == professor_filtro %}selected{% endif %}>
+                        {{ professor }}
+                    </option>
+                {% endfor %}
+            </select>
+
+            <button type="submit">Filtrar</button>
+
+            <a href="/" class="btn-limpar">Limpar Filtros</a>
+
+        </form>
+
+        <br>
+
+        <form action="/adicionar" method="POST">
+
+            <input type="text" name="nome" placeholder="Nome do aluno" required>
+            
+            <input type="text" name="professor" placeholder="Professor responsável" required>
+            
+            <select name="curso" required>
+
+                <option value="">Selecione o curso</option>
+
+                <option value="Audio visual">Audio visual</option>
+
+                <option value="Drone operador">Drone operador</option>
+
+                <option value="Edição de vídeo">Edição de vídeo</option>
+
+                <option value="Videomaker mobile">Videomaker mobile</option>
+    
+                <option value="Basquete">Basquete</option>
+    
+            </select>
+
+            <button type="submit">Adicionar</button>
+            
+        </form>
+
+    </div>
+
+    <!-- LISTA -->
+    <div class="card" id="alunos">
+        <h2>Alunos Cadastrados</h2>
+
+            <a href="/exportar" class="btn-exportar">📊 Exportar Excel</a>
+
+            <a href="/nova_chamada"
+                class="btn-nova-chamada"
+                onclick="return confirm('Deseja iniciar uma nova chamada? As presenças serão zeradas.')">
+                🔄 Nova chamada do dia
+            </a>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Presença</th>
+                    <th>Pagamento</th>
+                    <th>Alimento</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for a in alunos %}
+                <tr>
+                    <td>
+                        <strong>{{ a.nome }}</strong><br>
+                        <small>📚 {{ a.curso }}</small>
+                        <small>👨‍🏫 {{ a.professor }}</small>
+                    </td>
+
+                    <td>
+                        {% if a.presente %}
+                            ✅ Presente<br>
+                            📅 {{ a.data_presenca }}
+                        
+                        {% else %}
+                            ❌ Ausente
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        {% if a.pagamento %}
+                            💰 Pago
+                        {% else %}
+                            ⏳ Pendente
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        {% if a.alimento %}
+                            🍞 Entregue
+                        {% else %}
+                            ❌ Pendente
+                        {% endif %}
+                    </td>
+                    <td class="actions">
+
+                    <a href="/presenca/{{ loop.index0 }}">
+                        {% if a.presente %}
+                            ❌ Remover Presença
+                        {% else %}
+                            ✅ Marcar Presença
+                        {% endif %}
+                    </a>
+
+                    <a href="/pagamento/{{ loop.index0 }}">
+                        {% if a.pagamento %}
+                            💸 Desfazer Pagamento
+                        {% else %}
+                            💰 Registrar Pagamento
+                        {% endif %}
+                    </a>
+
+                    <a href="/alimento/{{ loop.index0 }}">
+                        {% if a.alimento %}
+                            ❌ Remover Entrega
+                        {% else %}
+                            🍞 Entregar Alimento
+                        {% endif %}
+                    </a>
+
+                    <a  href="/excluir/{{ loop.index0 }}"
+                        style="color:red;"
+                        onclick="return confirm('Deseja excluir este aluno?')">
+                        🗑 Excluir       
+                    </a>
+
+                </td>
+                    
+
+                </tr>
+                {% endfor %}
+            </tbody>
+
+        </table>
+    </div>
+
+</div>
+
+</body>
+</html>
