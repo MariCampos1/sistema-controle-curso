@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title>Gerenciar cursos</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="card">
+
+        <h1>⚙️ Gerenciar cursos</h1>
+
+        <a href="/" class="btn-voltar">
+            ← Voltar para os alunos
+        </a>
+
+        <h2>Cadastrar novo curso</h2>
+
+        <form
+            action="/cursos/adicionar"
+            method="POST"
+            class="form-curso">
+
+            <input
+                type="text"
+                name="nome"
+                placeholder="Nome do curso"
+                required>
+
+            <input
+                type="text"
+                name="professor"
+                placeholder="Professor responsável"
+                required>
+
+            <button type="submit">
+                Cadastrar curso
+            </button>
+
+        </form>
+
+    </div>
+
+    <div class="card">
+
+        <h2>Cursos cadastrados</h2>
+
+        {% if cursos %}
+
+            {% for curso in cursos %}
+
+                <div class="curso-item">
+
+                    <form
+                        action="/cursos/editar/{{ curso.id }}"
+                        method="POST"
+                        class="form-editar-curso">
+
+                        <input
+                            type="text"
+                            name="nome"
+                            value="{{ curso.nome }}"
+                            required>
+
+                        <input
+                            type="text"
+                            name="professor"
+                            value="{{ curso.professor }}"
+                            required>
+
+                        <button type="submit">
+                            Salvar
+                        </button>
+
+                    </form>
+
+                    <form
+                        action="/cursos/excluir/{{ curso.id }}"
+                        method="POST"
+                        onsubmit="return confirm(
+                            'Deseja excluir este curso?'
+                        )">
+
+                        <button
+                            type="submit"
+                            class="btn-excluir">
+
+                            Excluir
+
+                        </button>
+
+                    </form>
+
+                </div>
+
+            {% endfor %}
+
+        {% else %}
+
+            <p>Nenhum curso cadastrado.</p>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+</body>
+</html>

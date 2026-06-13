@@ -668,6 +668,154 @@ def exportar():
         )
     )
 
+# --------------------------------------------------
+# GERENCIAR CURSOS
+# --------------------------------------------------
+
+@app.route("/cursos")
+def gerenciar_cursos():
+    cursos = (
+        db.session.query(Curso)
+        .order_by(Curso.nome.asc())
+        .all()
+    )
+
+    return render_template(
+        "cursos.html",
+        cursos=cursos
+    )
+
+
+# --------------------------------------------------
+# ADICIONAR CURSO
+# --------------------------------------------------
+
+@app.route("/cursos/adicionar", methods=["POST"])
+def adicionar_curso():
+    nome = request.form.get("nome", "").strip()
+    professor = request.form.get("professor", "").strip()
+
+    if not nome or not professor:
+        return redirect("/cursos")
+
+    curso_existente = (
+        db.session.query(Curso)
+        .filter(
+            func.lower(Curso.nome) == nome.lower()
+        )
+        .first()
+    )
+
+    if curso_existente:
+        return (
+            "Esse curso já está cadastrado. "
+            '<a href="/cursos">Voltar</a>',
+            400
+        )
+
+    novo_curso = Curso(
+        nome=nome,
+        professor=professor
+    )
+
+    db.session.add(novo_curso)
+    db.session.commit()
+
+    return redirect("/cursos")
+
+
+# --------------------------------------------------
+# EDITAR CURSO E PROFESSOR
+# --------------------------------------------------
+
+@app.route("/cursos/editar/<id_curso>", methods=["POST"])
+def editar_curso(id_curso):
+    curso = db.session.get(Curso, id_curso)
+
+    if curso is None:
+        return "Curso não encontrado", 404
+
+    novo_nome = request.form.get("nome", "").strip()
+    novo_professor = request.form.get(
+        "professor",
+        ""
+    ).strip()
+
+    if not novo_nome or not novo_professor:
+        return redirect("/cursos")
+
+    curso_duplicado = (
+        db.session.query(Curso)
+        .filter(
+            func.lower(Curso.nome) == novo_nome.lower(),
+            Curso.id != id_curso
+        )
+        .first()
+    )
+
+    if curso_duplicado:
+        return (
+            "Já existe outro curso com esse nome. "
+            '<a href="/cursos">Voltar</a>',
+            400
+        )
+
+    nome_antigo = curso.nome
+
+    # Atualiza também as matrículas já existentes.
+    matriculas = (
+        db.session.query(Matricula)
+        .filter(
+            func.lower(Matricula.curso)
+            == nome_antigo.lower()
+        )
+        .all()
+    )
+
+    for matricula in matriculas:
+        matricula.curso = novo_nome
+        matricula.professor = novo_professor
+
+    curso.nome = novo_nome
+    curso.professor = novo_professor
+
+    db.session.commit()
+
+    return redirect("/cursos")
+
+
+# --------------------------------------------------
+# EXCLUIR CURSO
+# --------------------------------------------------
+
+@app.route("/cursos/excluir/<id_curso>", methods=["POST"])
+def excluir_curso(id_curso):
+    curso = db.session.get(Curso, id_curso)
+
+    if curso is None:
+        return "Curso não encontrado", 404
+
+    matriculas_existentes = (
+        db.session.query(Matricula)
+        .filter(
+            func.lower(Matricula.curso)
+            == curso.nome.lower()
+        )
+        .count()
+    )
+
+    if matriculas_existentes > 0:
+        return (
+            "Esse curso não pode ser excluído porque possui "
+            "alunos matriculados. "
+            '<a href="/cursos">Voltar</a>',
+            400
+        )
+
+    db.session.delete(curso)
+    db.session.commit()
+
+    return redirect("/cursos")
 
 # --------------------------------------------------
 # RODAR SERVIDOR

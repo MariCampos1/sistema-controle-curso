@@ -206,3 +206,51 @@ td {
 .botoes-edicao .btn-limpar {
     margin-left: 0;
 }
+
+.form-curso,
+.form-editar-curso {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.form-curso input,
+.form-editar-curso input {
+    flex: 1;
+    min-width: 180px;
+}
+
+.curso-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #ddd;
+}
+
+.form-editar-curso {
+    flex: 1;
+}
+
+.btn-excluir {
+    background: #b42318;
+}
+
+.btn-voltar,
+.btn-gerenciar {
+    display: inline-block;
+    margin: 10px 0;
+    text-decoration: none;
+}
+
+@media (max-width: 700px) {
+    .curso-item {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .form-editar-curso {
+        flex-direction: column;
+    }
+}
