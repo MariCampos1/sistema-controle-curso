@@ -179,3 +179,30 @@ td {
 .btn-nova-chamada:hover {
     background: #e65100;
 }
+
+.formulario-edicao {
+    max-width: 500px;
+    margin: 40px auto;
+}
+
+.formulario-edicao label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: bold;
+}
+
+.formulario-edicao input {
+    width: 100%;
+    box-sizing: border-box;
+    margin: 0 0 15px 0;
+}
+
+.botoes-edicao {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.botoes-edicao .btn-limpar {
+    margin-left: 0;
+}

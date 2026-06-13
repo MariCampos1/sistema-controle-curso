@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Editar Professor</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="card formulario-edicao">
+
+        <h1>✏️ Editar Professor</h1>
+
+        <p>
+            <strong>Aluno:</strong>
+            {{ aluno.nome }}
+        </p>
+
+        <p>
+            <strong>Curso:</strong>
+            {{ aluno.curso }}
+        </p>
+
+        <form method="POST">
+
+            <label for="professor">
+                Professor responsável
+            </label>
+
+            <input
+                type="text"
+                id="professor"
+                name="professor"
+                value="{{ aluno.professor }}"
+                required>
+
+            <div class="botoes-edicao">
+
+                <button type="submit">
+                    Salvar alteração
+                </button>
+
+                <a href="/" class="btn-limpar">
+                    Cancelar
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+</body>
+</html>

@@ -245,6 +245,34 @@ def nova_chamada():
 
     return redirect("/")
 
+@app.route("/editar_professor/<id_aluno>", methods=["GET", "POST"])
+def editar_professor(id_aluno):
+    alunos = carregar_dados()
+
+    aluno_encontrado = None
+
+    for aluno in alunos:
+        if aluno.get("id") == id_aluno:
+            aluno_encontrado = aluno
+            break
+
+    if aluno_encontrado is None:
+        return "Aluno não encontrado", 404
+
+    if request.method == "POST":
+        novo_professor = request.form.get("professor", "").strip()
+
+        if novo_professor:
+            aluno_encontrado["professor"] = novo_professor
+            salvar_dados(alunos)
+
+        return redirect("/")
+
+    return render_template(
+        "editar_professor.html",
+        aluno=aluno_encontrado
+    )
+
 if __name__ == "__main__":
     app.run(debug=True)
 
