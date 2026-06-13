@@ -90,27 +90,19 @@
 
             <input type="text" name="nome" placeholder="Nome do aluno" required>
             
-            <input type="text" name="professor" placeholder="Professor responsável" required>
-            
-            <select name="curso" required>
+            <label for="curso_id">Curso e professor</label>
 
-                <option value="">Selecione o curso</option>
+            <select id="curso_id" name="curso_id" required>
+                <option value="">Selecione um curso</option>
 
-                <option value="Audio visual">Audio visual</option>
-
-                <option value="Drone operador">Operador de Drone</option>
-
-                <option value="Drone operador">Fotografia mobile</option>
-
-                <option value="Edição de vídeo">Edição de vídeo</option>
-
-                <option value="Videomaker mobile">Videomaker mobile</option>
-    
-                <option value="Basquete">Basquete</option>
-    
+                {% for curso in cursos_cadastro %}
+                    <option value="{{ curso.id }}">
+                        {{ curso.nome }} — {{ curso.professor }}
+                    </option>
+                {% endfor %}
             </select>
 
-            <button type="submit">Adicionar</button>
+            <button type="submit">Cadastrar</button>
             
         </form>
 

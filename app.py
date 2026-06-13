@@ -68,7 +68,30 @@ class Estudante(db.Model):
         cascade="all, delete-orphan"
     )
 
+class Curso(db.Model):
+    __tablename__ = "cursos"
 
+    id = db.Column(
+        db.String(36),
+        primary_key=True,
+        default=lambda: str(uuid.uuid4())
+    )
+
+    nome = db.Column(
+        db.String(150),
+        nullable=False
+    )
+
+    professor = db.Column(
+        db.String(150),
+        nullable=False
+    )
+
+    criado_em = db.Column(
+        db.DateTime(timezone=True),
+        server_default=db.func.now()
+    )
+    
 # --------------------------------------------------
 # MODELO: MATRÍCULA
 # --------------------------------------------------
@@ -169,6 +192,7 @@ def index():
         ""
     ).strip()
 
+# Cursos usados no filtro da tabela
     cursos_resultado = (
         db.session.query(Matricula.curso)
         .filter(Matricula.curso != "")
@@ -181,6 +205,13 @@ def index():
         resultado[0]
         for resultado in cursos_resultado
     ]
+
+# Cursos disponíveis para novas matrículas
+    cursos_cadastro = (
+        db.session.query(Curso)
+        .order_by(Curso.nome.asc())
+        .all()
+    )
 
     professores_resultado = (
         db.session.query(Matricula.professor)
@@ -248,6 +279,7 @@ def index():
         alunos=matriculas,
 
         cursos=cursos,
+        cursos_cadastro=cursos_cadastro,
         curso_filtro=curso_filtro,
         professores=professores,
         professor_filtro=professor_filtro,
@@ -270,18 +302,81 @@ def adicionar():
         ""
     ).strip()
 
-    curso = request.form.get(
-        "curso",
+    curso_id = request.form.get(
+        "curso_id",
         ""
     ).strip()
 
-    professor = request.form.get(
-        "professor",
-        ""
-    ).strip()
-
-    if not nome or not curso or not professor:
+    if not nome or not curso_id:
         return redirect("/")
+
+    curso_escolhido = db.session.get(
+        Curso,
+        curso_id
+    )
+
+    if curso_escolhido is None:
+        return "Curso não encontrado", 404
+
+    curso = curso_escolhido.nome
+    professor = curso_escolhido.professor
+
+    estudante = (
+        db.session.query(Estudante)
+        .filter(
+            func.lower(Estudante.nome)
+            == nome.lower()
+        )
+        .first()
+    )
+
+    if estudante is None:
+        estudante = Estudante(nome=nome)
+        db.session.add(estudante)
+        db.session.flush()
+
+    matricula_existente = (
+        db.session.query(Matricula)
+        .filter(
+            Matricula.estudante_id == estudante.id,
+            func.lower(Matricula.curso)
+            == curso.lower()
+        )
+        .first()
+    )
+
+    if matricula_existente:
+        return (
+            "Este aluno já está matriculado nesse curso. "
+            '<a href="/">Voltar</a>',
+            400
+        )
+
+    nova_matricula = Matricula(
+        estudante_id=estudante.id,
+        curso=curso,
+        professor=professor,
+        presente=False,
+        data_presenca="",
+        pagamento=False,
+        alimento=False
+    )
+
+    db.session.add(nova_matricula)
+
+    try:
+        db.session.commit()
+
+    except IntegrityError:
+        db.session.rollback()
+
+        return (
+            "Não foi possível criar a matrícula. "
+            '<a href="/">Voltar</a>',
+            400
+        )
+
+    return redirect("/")
 
     # Procura um estudante já cadastrado com esse nome
     estudante = (
