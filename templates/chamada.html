@@ -62,19 +62,33 @@
 
         <div class="card">
 
-            <div class="chamada-resumo">
+<div class="chamada-resumo">
 
-                <div>
-                    <h2>{{ curso_selecionado }}</h2>
+    <div>
+        <h2>{{ curso_selecionado }}</h2>
 
-                    <p>
-                        {{ total_presentes }} de
-                        {{ matriculas|length }}
-                        presentes
-                    </p>
-                </div>
+        <p>
+            {{ total_presentes }} de
+            {{ matriculas|length }}
+            presentes
+        </p>
+    </div>
 
-            </div>
+    <a
+        href="{{ url_for(
+            'nova_chamada_curso',
+            curso=curso_selecionado
+        ) }}"
+        class="btn-nova-chamada"
+        onclick="return confirm(
+            'Deseja iniciar uma nova chamada para este curso? Todas as presenças atuais serão removidas.'
+        )">
+
+        🔄 Nova chamada
+
+    </a>
+
+</div>
 
             {% if matriculas %}
 

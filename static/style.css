@@ -608,3 +608,17 @@ td {
     color: #991b1b;
     font-weight: bold;
 }
+
+.btn-nova-chamada {
+    display: inline-block;
+    padding: 10px 14px;
+    border-radius: 8px;
+    text-decoration: none;
+    background: #d97706;
+    color: white;
+    text-align: center;
+}
+
+.btn-nova-chamada:hover {
+    opacity: 0.9;
+}

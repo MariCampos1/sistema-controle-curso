@@ -1300,6 +1300,35 @@ def enviar_relatorio_email():
         + urlencode(filtros_retorno)
     )
 
+@app.route("/chamada/nova")
+def nova_chamada_curso():
+    curso_selecionado = request.args.get(
+        "curso",
+        ""
+    ).strip()
+
+    if not curso_selecionado:
+        return redirect("/chamada")
+
+    matriculas = (
+        db.session.query(Matricula)
+        .filter(
+            func.lower(Matricula.curso)
+            == curso_selecionado.lower()
+        )
+        .all()
+    )
+
+    for matricula in matriculas:
+        matricula.presente = False
+        matricula.data_presenca = ""
+
+    db.session.commit()
+
+    return redirect(
+        f"/chamada?curso={curso_selecionado}"
+    )
+
 # --------------------------------------------------
 # RODAR SERVIDOR
 # --------------------------------------------------
