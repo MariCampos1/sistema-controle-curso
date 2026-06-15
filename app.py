@@ -176,6 +176,10 @@ with app.app_context():
 # --------------------------------------------------
 
 @app.route("/")
+def painel():
+    return render_template("painel.html")
+
+@app.route("/alunos")
 def index():
     curso_filtro = request.args.get(
         "curso",
@@ -308,7 +312,7 @@ def adicionar():
     ).strip()
 
     if not nome or not curso_id:
-        return redirect("/")
+        return redirect("/alunos")
 
     curso_escolhido = db.session.get(
         Curso,
@@ -376,7 +380,7 @@ def adicionar():
             400
         )
 
-    return redirect("/")
+    return redirect("/alunos")
 
     # Procura um estudante já cadastrado com esse nome
     estudante = (
@@ -436,7 +440,7 @@ def adicionar():
             400
         )
 
-    return redirect("/")
+    return redirect("/alunos")
 
 
 # --------------------------------------------------
@@ -464,7 +468,7 @@ def presenca(id_matricula):
 
     db.session.commit()
 
-    return redirect("/")
+    return redirect("/alunos")
 
 
 # --------------------------------------------------
@@ -485,7 +489,7 @@ def pagamento(id_matricula):
 
     db.session.commit()
 
-    return redirect("/")
+    return redirect("/alunos")
 
 
 # --------------------------------------------------
@@ -506,7 +510,7 @@ def alimento(id_matricula):
 
     db.session.commit()
 
-    return redirect("/")
+    return redirect("/alunos")
 
 
 # --------------------------------------------------
@@ -543,7 +547,7 @@ def excluir(id_matricula):
 
     db.session.commit()
 
-    return redirect("/")
+    return redirect("/alunos")
 
 
 # --------------------------------------------------
@@ -573,7 +577,7 @@ def editar_professor(id_matricula):
             matricula.professor = novo_professor
             db.session.commit()
 
-        return redirect("/")
+        return redirect("/alunos")
 
     return render_template(
         "editar_professor.html",
@@ -597,7 +601,7 @@ def nova_chamada():
 
     db.session.commit()
 
-    return redirect("/")
+    return redirect("/alunos")
 
 
 # --------------------------------------------------
@@ -816,6 +820,314 @@ def excluir_curso(id_curso):
     db.session.commit()
 
     return redirect("/cursos")
+
+@app.route("/chamada")
+def pagina_chamada():
+    curso_selecionado = request.args.get(
+        "curso",
+        ""
+    ).strip()
+
+    cursos = (
+        db.session.query(Curso)
+        .order_by(Curso.nome.asc())
+        .all()
+    )
+
+    matriculas = []
+
+    if curso_selecionado:
+        matriculas = (
+            db.session.query(Matricula)
+            .join(Estudante)
+            .filter(
+                func.lower(Matricula.curso)
+                == curso_selecionado.lower()
+            )
+            .order_by(Estudante.nome.asc())
+            .all()
+        )
+
+    total_presentes = sum(
+        1 for matricula in matriculas
+        if matricula.presente
+    )
+
+    return render_template(
+        "chamada.html",
+        cursos=cursos,
+        curso_selecionado=curso_selecionado,
+        matriculas=matriculas,
+        total_presentes=total_presentes
+    )
+
+@app.route("/controles")
+def pagina_controles():
+    curso_selecionado = request.args.get(
+        "curso",
+        ""
+    ).strip()
+
+    cursos = (
+        db.session.query(Curso)
+        .order_by(Curso.nome.asc())
+        .all()
+    )
+
+    matriculas = []
+
+    if curso_selecionado:
+        matriculas = (
+            db.session.query(Matricula)
+            .join(Estudante)
+            .filter(
+                func.lower(Matricula.curso)
+                == curso_selecionado.lower()
+            )
+            .order_by(Estudante.nome.asc())
+            .all()
+        )
+
+    total_pagamentos = sum(
+        1 for matricula in matriculas
+        if matricula.pagamento
+    )
+
+    total_alimentos = sum(
+        1 for matricula in matriculas
+        if matricula.alimento
+    )
+
+    return render_template(
+        "controles.html",
+        cursos=cursos,
+        curso_selecionado=curso_selecionado,
+        matriculas=matriculas,
+        total_pagamentos=total_pagamentos,
+        total_alimentos=total_alimentos
+    )
+
+@app.route("/relatorios")
+def pagina_relatorios():
+    curso_filtro = request.args.get("curso", "").strip()
+    professor_filtro = request.args.get("professor", "").strip()
+    busca = request.args.get("busca", "").strip()
+
+    cursos = (
+        db.session.query(Curso)
+        .order_by(Curso.nome.asc())
+        .all()
+    )
+
+    professores_resultado = (
+        db.session.query(Matricula.professor)
+        .filter(Matricula.professor != "")
+        .distinct()
+        .order_by(Matricula.professor.asc())
+        .all()
+    )
+
+    professores = [
+        resultado[0]
+        for resultado in professores_resultado
+    ]
+
+    consulta = (
+        db.session.query(Matricula)
+        .join(Estudante)
+    )
+
+    if curso_filtro:
+        consulta = consulta.filter(
+            func.lower(Matricula.curso)
+            == curso_filtro.lower()
+        )
+
+    if professor_filtro:
+        consulta = consulta.filter(
+            func.lower(Matricula.professor)
+            == professor_filtro.lower()
+        )
+
+    if busca:
+        consulta = consulta.filter(
+            Estudante.nome.ilike(f"%{busca}%")
+        )
+
+    matriculas = consulta.order_by(
+        Estudante.nome.asc(),
+        Matricula.curso.asc()
+    ).all()
+
+    total_alunos = len({
+        matricula.estudante_id
+        for matricula in matriculas
+    })
+
+    total_matriculas = len(matriculas)
+
+    total_presentes = sum(
+        1 for matricula in matriculas
+        if matricula.presente
+    )
+
+    total_pagamentos = sum(
+        1 for matricula in matriculas
+        if matricula.pagamento
+    )
+
+    total_alimentos = sum(
+        1 for matricula in matriculas
+        if matricula.alimento
+    )
+
+    return render_template(
+        "relatorios.html",
+        cursos=cursos,
+        professores=professores,
+        matriculas=matriculas,
+        curso_filtro=curso_filtro,
+        professor_filtro=professor_filtro,
+        busca=busca,
+        total_alunos=total_alunos,
+        total_matriculas=total_matriculas,
+        total_presentes=total_presentes,
+        total_pagamentos=total_pagamentos,
+        total_alimentos=total_alimentos
+    )
+
+@app.route("/chamada/presenca/<id_matricula>")
+def chamada_presenca(id_matricula):
+    matricula = db.session.get(
+        Matricula,
+        id_matricula
+    )
+
+    if matricula is None:
+        return "Matrícula não encontrada", 404
+
+    if matricula.presente:
+        matricula.presente = False
+        matricula.data_presenca = ""
+    else:
+        matricula.presente = True
+        matricula.data_presenca = (
+            datetime.now().strftime("%d/%m/%Y")
+        )
+
+    db.session.commit()
+
+    return redirect(
+        f"/chamada?curso={matricula.curso}"
+    )
+
+@app.route("/controles/pagamento/<id_matricula>")
+def controles_pagamento(id_matricula):
+    matricula = db.session.get(
+        Matricula,
+        id_matricula
+    )
+
+    if matricula is None:
+        return "Matrícula não encontrada", 404
+
+    matricula.pagamento = not matricula.pagamento
+
+    db.session.commit()
+
+    return redirect(
+        f"/controles?curso={matricula.curso}"
+    )
+
+@app.route("/controles/alimento/<id_matricula>")
+def controles_alimento(id_matricula):
+    matricula = db.session.get(
+        Matricula,
+        id_matricula
+    )
+
+    if matricula is None:
+        return "Matrícula não encontrada", 404
+
+    matricula.alimento = not matricula.alimento
+
+    db.session.commit()
+
+    return redirect(
+        f"/controles?curso={matricula.curso}"
+    )
+
+@app.route("/relatorios/exportar")
+def exportar_relatorio():
+    curso_filtro = request.args.get("curso", "").strip()
+    professor_filtro = request.args.get("professor", "").strip()
+    busca = request.args.get("busca", "").strip()
+
+    consulta = (
+        db.session.query(Matricula)
+        .join(Estudante)
+    )
+
+    if curso_filtro:
+        consulta = consulta.filter(
+            func.lower(Matricula.curso)
+            == curso_filtro.lower()
+        )
+
+    if professor_filtro:
+        consulta = consulta.filter(
+            func.lower(Matricula.professor)
+            == professor_filtro.lower()
+        )
+
+    if busca:
+        consulta = consulta.filter(
+            Estudante.nome.ilike(f"%{busca}%")
+        )
+
+    matriculas = consulta.order_by(
+        Estudante.nome.asc(),
+        Matricula.curso.asc()
+    ).all()
+
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Relatório"
+
+    ws.append([
+        "Aluno",
+        "Curso",
+        "Professor",
+        "Presença",
+        "Data da Presença",
+        "Pagamento",
+        "Alimento"
+    ])
+
+    for matricula in matriculas:
+        ws.append([
+            matricula.estudante.nome,
+            matricula.curso,
+            matricula.professor,
+            "Presente" if matricula.presente else "Ausente",
+            matricula.data_presenca,
+            "Pago" if matricula.pagamento else "Pendente",
+            "Entregue" if matricula.alimento else "Pendente"
+        ])
+
+    arquivo = BytesIO()
+    wb.save(arquivo)
+    arquivo.seek(0)
+
+    return send_file(
+        arquivo,
+        as_attachment=True,
+        download_name="relatorio_filtrado.xlsx",
+        mimetype=(
+            "application/vnd.openxmlformats-officedocument."
+            "spreadsheetml.sheet"
+        )
+    )
 
 # --------------------------------------------------
 # RODAR SERVIDOR

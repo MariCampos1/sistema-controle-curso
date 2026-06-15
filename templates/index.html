@@ -16,6 +16,11 @@
     <div class="card">
         <h2>📊 Relatório Geral</h2>
 
+            <a href="/" class="btn-voltar">
+                ← Voltar ao painel
+            </a>
+
+
         <div class="dashboard">
 
             <div class="card-resumo">
@@ -116,15 +121,7 @@
     <!-- LISTA -->
     <div class="card" id="alunos">
         <h2>Alunos Cadastrados</h2>
-
-            <a href="/exportar" class="btn-exportar">📊 Exportar Excel</a>
-
-            <a href="/nova_chamada"
-                class="btn-nova-chamada"
-                onclick="return confirm('Deseja iniciar uma nova chamada? As presenças serão zeradas.')">
-                🔄 Nova chamada do dia
-            </a>
-
+            
         <table>
             <thead>
                 <tr>
@@ -145,56 +142,8 @@
                         <small>👨‍🏫 {{ a.professor }}</small>
                     </td>
 
-                    <td>
-                        {% if a.presente %}
-                            ✅ Presente<br>
-                            📅 {{ a.data_presenca }}
-                        
-                        {% else %}
-                            ❌ Ausente
-                        {% endif %}
-                    </td>
 
-                    <td>
-                        {% if a.pagamento %}
-                            💰 Pago
-                        {% else %}
-                            ⏳ Pendente
-                        {% endif %}
-                    </td>
-
-                    <td>
-                        {% if a.alimento %}
-                            🍞 Entregue
-                        {% else %}
-                            ❌ Pendente
-                        {% endif %}
-                    </td>
                     <td class="actions">
-
-                    <a href="/presenca/{{ a.id }}">
-                        {% if a.presente %}
-                            ❌ Remover Presença
-                        {% else %}
-                            ✅ Marcar Presença
-                        {% endif %}
-                    </a>
-
-                    <a href="/pagamento/{{ a.id }}">
-                        {% if a.pagamento %}
-                            💸 Desfazer Pagamento
-                        {% else %}
-                            💰 Registrar Pagamento
-                        {% endif %}
-                    </a>
-
-                    <a href="/alimento/{{ a.id }}">
-                        {% if a.alimento %}
-                            ❌ Remover Entrega
-                        {% else %}
-                            🍞 Entregar Alimento
-                        {% endif %}
-                    </a>
 
                     <a href="/editar_professor/{{ a.id }}">
                         ✏️ Editar professor

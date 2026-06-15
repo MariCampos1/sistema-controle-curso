@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title>Controles</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="card">
+
+        <a href="/" class="btn-voltar">
+            ← Voltar ao painel
+        </a>
+
+        <h1>💰 Controles</h1>
+
+        <p>
+            Selecione um curso para visualizar os alunos.
+        </p>
+
+        <form
+            method="GET"
+            action="/controles"
+            class="form-filtro-controles">
+
+            <select name="curso" required>
+
+                <option value="">
+                    Selecione o curso
+                </option>
+
+                {% for curso in cursos %}
+
+                    <option
+                        value="{{ curso.nome }}"
+                        {% if curso.nome == curso_selecionado %}
+                            selected
+                        {% endif %}>
+
+                        {{ curso.nome }} — {{ curso.professor }}
+
+                    </option>
+
+                {% endfor %}
+
+            </select>
+
+            <button type="submit">
+                Abrir controles
+            </button>
+
+        </form>
+
+    </div>
+
+    {% if curso_selecionado %}
+
+        <div class="card">
+
+            <h2>{{ curso_selecionado }}</h2>
+
+            <div class="resumo-controles">
+
+                <div class="resumo-item">
+                    <strong>{{ matriculas|length }}</strong>
+                    <span>Matrículas</span>
+                </div>
+
+                <div class="resumo-item">
+                    <strong>{{ total_pagamentos }}</strong>
+                    <span>Pagamentos registrados</span>
+                </div>
+
+                <div class="resumo-item">
+                    <strong>{{ total_alimentos }}</strong>
+                    <span>Alimentos entregues</span>
+                </div>
+
+            </div>
+
+            {% if matriculas %}
+
+                <div class="lista-controles">
+
+                    {% for matricula in matriculas %}
+
+                        <div class="aluno-controle">
+
+                            <div class="aluno-controle-nome">
+
+                                <strong>
+                                    {{ matricula.estudante.nome }}
+                                </strong>
+
+                                <span>
+                                    Professor:
+                                    {{ matricula.professor }}
+                                </span>
+
+                            </div>
+
+                            <div class="acoes-controle">
+
+                                <a
+                                    href="/controles/pagamento/{{ matricula.id }}"
+                                    class="
+                                        btn-controle
+                                        {% if matricula.pagamento %}
+                                            ativo
+                                        {% endif %}
+                                    ">
+
+                                    {% if matricula.pagamento %}
+                                        💸 Desfazer pagamento
+                                    {% else %}
+                                        💰 Registrar pagamento
+                                    {% endif %}
+
+                                </a>
+
+                                <a
+                                    href="/controles/alimento/{{ matricula.id }}"
+                                    class="
+                                        btn-controle
+                                        {% if matricula.alimento %}
+                                            ativo
+                                        {% endif %}
+                                    ">
+
+                                    {% if matricula.alimento %}
+                                        ❌ Remover entrega
+                                    {% else %}
+                                        🍞 Entregar alimento
+                                    {% endif %}
+
+                                </a>
+
+                            </div>
+
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+            {% else %}
+
+                <p>
+                    Nenhum aluno matriculado neste curso.
+                </p>
+
+            {% endif %}
+
+        </div>
+
+    {% endif %}
+
+</div>
+
+</body>
+</html>

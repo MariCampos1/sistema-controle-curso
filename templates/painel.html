@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title>Painel do Projeto</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<div class="container painel-container">
+
+    <div class="painel-cabecalho">
+        <h1>Painel de Controle</h1>
+        <p>Escolha uma área para continuar</p>
+    </div>
+
+    <div class="painel-grid">
+
+        <a href="/alunos" class="painel-card">
+            <span class="painel-icone">👥</span>
+
+            <div>
+                <h2>Alunos</h2>
+                <p>Cadastrar alunos e matrículas</p>
+            </div>
+        </a>
+
+        <a href="/cursos" class="painel-card">
+            <span class="painel-icone">📚</span>
+
+            <div>
+                <h2>Cursos</h2>
+                <p>Gerenciar cursos e professores</p>
+            </div>
+        </a>
+
+        <a href="/chamada" class="painel-card">
+            <span class="painel-icone">✅</span>
+
+            <div>
+                <h2>Chamada</h2>
+                <p>Registrar presença por curso</p>
+            </div>
+        </a>
+
+        <a href="/controles" class="painel-card">
+            <span class="painel-icone">💰</span>
+
+            <div>
+                <h2>Controles</h2>
+                <p>Pagamento e entrega de alimento</p>
+            </div>
+        </a>
+
+        <a href="/relatorios" class="painel-card">
+            <span class="painel-icone">📊</span>
+
+            <div>
+                <h2>Relatórios</h2>
+                <p>Consultar dados e exportar Excel</p>
+            </div>
+        </a>
+
+    </div>
+
+</div>
+
+</body>
+</html>

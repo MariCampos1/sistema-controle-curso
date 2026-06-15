@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title>Chamada</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="card">
+
+        <a href="/" class="btn-voltar">
+            ← Voltar ao painel
+        </a>
+
+        <h1>✅ Chamada</h1>
+
+        <form method="GET" action="/chamada" class="form-filtro-chamada">
+
+            <select name="curso" required>
+
+                <option value="">
+                    Selecione o curso
+                </option>
+
+                {% for curso in cursos %}
+
+                    <option
+                        value="{{ curso.nome }}"
+                        {% if curso.nome == curso_selecionado %}
+                            selected
+                        {% endif %}>
+
+                        {{ curso.nome }} — {{ curso.professor }}
+
+                    </option>
+
+                {% endfor %}
+
+            </select>
+
+            <button type="submit">
+                Abrir chamada
+            </button>
+
+        </form>
+
+    </div>
+
+    {% if curso_selecionado %}
+
+        <div class="card">
+
+            <div class="chamada-resumo">
+
+                <div>
+                    <h2>{{ curso_selecionado }}</h2>
+
+                    <p>
+                        {{ total_presentes }} de
+                        {{ matriculas|length }}
+                        presentes
+                    </p>
+                </div>
+
+            </div>
+
+            {% if matriculas %}
+
+                <div class="lista-chamada">
+
+                    {% for matricula in matriculas %}
+
+                        <div class="aluno-chamada">
+
+                            <div class="aluno-chamada-info">
+
+                                <strong>
+                                    {{ matricula.estudante.nome }}
+                                </strong>
+
+                                {% if matricula.presente %}
+
+                                    <span class="status-presente">
+                                        Presente
+                                    </span>
+
+                                    <small>
+                                        {{ matricula.data_presenca }}
+                                    </small>
+
+                                {% else %}
+
+                                    <span class="status-ausente">
+                                        Ausente
+                                    </span>
+
+                                {% endif %}
+
+                            </div>
+
+                            <a
+                                href="/chamada/presenca/{{ matricula.id }}"
+                                class="
+                                    btn-presenca
+                                    {% if matricula.presente %}
+                                        marcado
+                                    {% endif %}
+                                ">
+
+                                {% if matricula.presente %}
+
+                                    ❌ Remover presença
+
+                                {% else %}
+
+                                    ✅ Marcar presença
+
+                                {% endif %}
+
+                            </a>
+
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+            {% else %}
+
+                <p>
+                    Nenhum aluno matriculado neste curso.
+                </p>
+
+            {% endif %}
+
+        </div>
+
+    {% endif %}
+
+</div>
+
+</body>
+</html>

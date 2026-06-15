@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title>Relatórios</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="card">
+
+        <a href="/" class="btn-voltar">
+            ← Voltar ao painel
+        </a>
+
+        <h1>📊 Relatórios</h1>
+
+        <form
+            action="/relatorios"
+            method="GET"
+            class="form-relatorios">
+
+            <input
+                type="text"
+                name="busca"
+                placeholder="Buscar aluno"
+                value="{{ busca }}">
+
+            <select name="curso">
+
+                <option value="">
+                    Todos os cursos
+                </option>
+
+                {% for curso in cursos %}
+
+                    <option
+                        value="{{ curso.nome }}"
+                        {% if curso.nome == curso_filtro %}
+                            selected
+                        {% endif %}>
+
+                        {{ curso.nome }}
+
+                    </option>
+
+                {% endfor %}
+
+            </select>
+
+            <select name="professor">
+
+                <option value="">
+                    Todos os professores
+                </option>
+
+                {% for professor in professores %}
+
+                    <option
+                        value="{{ professor }}"
+                        {% if professor == professor_filtro %}
+                            selected
+                        {% endif %}>
+
+                        {{ professor }}
+
+                    </option>
+
+                {% endfor %}
+
+            </select>
+
+            <button type="submit">
+                Aplicar filtros
+            </button>
+
+            <a href="/relatorios" class="btn-limpar">
+                Limpar filtros
+            </a>
+
+        </form>
+
+    </div>
+
+    <div class="resumo-relatorios">
+
+        <div class="resumo-item">
+            <strong>{{ total_alunos }}</strong>
+            <span>Alunos</span>
+        </div>
+
+        <div class="resumo-item">
+            <strong>{{ total_matriculas }}</strong>
+            <span>Matrículas</span>
+        </div>
+
+        <div class="resumo-item">
+            <strong>{{ total_presentes }}</strong>
+            <span>Presentes</span>
+        </div>
+
+        <div class="resumo-item">
+            <strong>{{ total_pagamentos }}</strong>
+            <span>Pagamentos</span>
+        </div>
+
+        <div class="resumo-item">
+            <strong>{{ total_alimentos }}</strong>
+            <span>Alimentos</span>
+        </div>
+
+    </div>
+
+    <div class="card">
+
+        <div class="cabecalho-relatorio">
+
+            <h2>Resultados</h2>
+
+            <a
+                href="/relatorios/exportar?curso={{ curso_filtro }}&professor={{ professor_filtro }}&busca={{ busca }}"
+                class="btn-exportar">
+
+                📥 Exportar Excel
+
+            </a>
+
+        </div>
+
+        {% if matriculas %}
+
+            <div class="tabela-responsiva">
+
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>Aluno</th>
+                            <th>Curso</th>
+                            <th>Professor</th>
+                            <th>Presença</th>
+                            <th>Pagamento</th>
+                            <th>Alimento</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        {% for matricula in matriculas %}
+
+                            <tr>
+
+                                <td>
+                                    {{ matricula.estudante.nome }}
+                                </td>
+
+                                <td>
+                                    {{ matricula.curso }}
+                                </td>
+
+                                <td>
+                                    {{ matricula.professor }}
+                                </td>
+
+                                <td>
+                                    {% if matricula.presente %}
+                                        ✅ Presente
+                                    {% else %}
+                                        ❌ Ausente
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    {% if matricula.pagamento %}
+                                        ✅ Pago
+                                    {% else %}
+                                        ⏳ Pendente
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    {% if matricula.alimento %}
+                                        ✅ Entregue
+                                    {% else %}
+                                        ⏳ Pendente
+                                    {% endif %}
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        {% else %}
+
+            <p>
+                Nenhum resultado encontrado.
+            </p>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+</body>
+</html>
