@@ -18,6 +18,23 @@
 
 <div class="container">
 
+    {% if enviado %}
+
+    <div class="mensagem-sucesso">
+        ✅ Relatório enviado para a secretaria.
+    </div>
+
+    {% endif %}
+
+    {% if erro_envio %}
+
+    <div class="mensagem-erro">
+        ❌ Não foi possível enviar o relatório.
+        Confira as configurações do e-mail.
+    </div>
+
+    {% endif %}
+
     <div class="card">
 
         <a href="/" class="btn-voltar">
@@ -135,6 +152,20 @@
                 📥 Exportar Excel
 
             </a>
+
+            <a
+                href="{{ url_for(
+                'enviar_relatorio_email',
+                curso=curso_filtro,
+                professor=professor_filtro,
+                busca=busca
+            ) }}"
+            class="btn-enviar-email"
+            onclick="this.innerHTML='⏳ Enviando...';">
+
+            📧 Enviar e-mail
+
+</a>
 
         </div>
 

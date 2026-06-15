@@ -3,3 +3,4 @@ flask-sqlalchemy
 psycopg2-binary
 openpyxl
 gunicorn
+resend

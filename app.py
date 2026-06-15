@@ -5,8 +5,12 @@ from sqlalchemy.exc import IntegrityError
 from datetime import datetime
 from openpyxl import Workbook
 from io import BytesIO
+from io import BytesIO
+from urllib.parse import urlencode
 import os
 import uuid
+import base64
+import resend
 
 
 app = Flask(__name__)
@@ -605,7 +609,7 @@ def nova_chamada():
 
 
 # --------------------------------------------------
-# EXPORTAR EXCEL
+# EXPORTAR
 # --------------------------------------------------
 
 @app.route("/exportar")
@@ -909,6 +913,10 @@ def pagina_controles():
 
 @app.route("/relatorios")
 def pagina_relatorios():
+
+    enviado = request.args.get("enviado") == "1"
+    erro_envio = request.args.get("erro_envio") == "1"
+
     curso_filtro = request.args.get("curso", "").strip()
     professor_filtro = request.args.get("professor", "").strip()
     busca = request.args.get("busca", "").strip()
@@ -993,7 +1001,9 @@ def pagina_relatorios():
         total_matriculas=total_matriculas,
         total_presentes=total_presentes,
         total_pagamentos=total_pagamentos,
-        total_alimentos=total_alimentos
+        total_alimentos=total_alimentos,
+        enviado=enviado,
+        erro_envio=erro_envio
     )
 
 @app.route("/chamada/presenca/<id_matricula>")
@@ -1127,6 +1137,167 @@ def exportar_relatorio():
             "application/vnd.openxmlformats-officedocument."
             "spreadsheetml.sheet"
         )
+    )
+
+@app.route("/relatorios/enviar")
+def enviar_relatorio_email():
+    curso_filtro = request.args.get(
+        "curso",
+        ""
+    ).strip()
+
+    professor_filtro = request.args.get(
+        "professor",
+        ""
+    ).strip()
+
+    busca = request.args.get(
+        "busca",
+        ""
+    ).strip()
+
+    consulta = (
+        db.session.query(Matricula)
+        .join(Estudante)
+    )
+
+    if curso_filtro:
+        consulta = consulta.filter(
+            func.lower(Matricula.curso)
+            == curso_filtro.lower()
+        )
+
+    if professor_filtro:
+        consulta = consulta.filter(
+            func.lower(Matricula.professor)
+            == professor_filtro.lower()
+        )
+
+    if busca:
+        consulta = consulta.filter(
+            Estudante.nome.ilike(f"%{busca}%")
+        )
+
+    matriculas = consulta.order_by(
+        Estudante.nome.asc(),
+        Matricula.curso.asc()
+    ).all()
+
+    # Cria o Excel
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Relatório"
+
+    ws.append([
+        "Aluno",
+        "Curso",
+        "Professor",
+        "Presença",
+        "Data da Presença",
+        "Pagamento",
+        "Alimento"
+    ])
+
+    for matricula in matriculas:
+        ws.append([
+            matricula.estudante.nome,
+            matricula.curso,
+            matricula.professor,
+            (
+                "Presente"
+                if matricula.presente
+                else "Ausente"
+            ),
+            matricula.data_presenca,
+            (
+                "Pago"
+                if matricula.pagamento
+                else "Pendente"
+            ),
+            (
+                "Entregue"
+                if matricula.alimento
+                else "Pendente"
+            )
+        ])
+
+    arquivo = BytesIO()
+    wb.save(arquivo)
+    arquivo.seek(0)
+
+    arquivo_base64 = base64.b64encode(
+        arquivo.getvalue()
+    ).decode("utf-8")
+
+    api_key = os.environ.get("RESEND_API_KEY")
+    email_secretaria = os.environ.get(
+        "EMAIL_SECRETARIA"
+    )
+    email_remetente = os.environ.get(
+        "EMAIL_REMETENTE"
+    )
+
+    filtros_retorno = {
+        "curso": curso_filtro,
+        "professor": professor_filtro,
+        "busca": busca
+    }
+
+    if (
+        not api_key
+        or not email_secretaria
+        or not email_remetente
+    ):
+        filtros_retorno["erro_envio"] = "1"
+
+        return redirect(
+            "/relatorios?"
+            + urlencode(filtros_retorno)
+        )
+
+    resend.api_key = api_key
+
+    descricao_filtro = curso_filtro or "Todos os cursos"
+
+    try:
+        params: resend.Emails.SendParams = {
+            "from": email_remetente,
+            "to": [email_secretaria],
+            "subject": (
+                f"Relatório de alunos — "
+                f"{descricao_filtro}"
+            ),
+            "html": (
+                "<h2>Relatório do sistema de cursos</h2>"
+                f"<p>Curso: {descricao_filtro}</p>"
+                f"<p>Total de matrículas: "
+                f"{len(matriculas)}</p>"
+                "<p>O relatório está anexado "
+                "a este e-mail.</p>"
+            ),
+            "attachments": [
+                {
+                    "content": arquivo_base64,
+                    "filename": "relatorio_alunos.xlsx"
+                }
+            ]
+        }
+
+        resend.Emails.send(params)
+
+        filtros_retorno["enviado"] = "1"
+
+    except Exception as erro:
+        print(
+            "Erro ao enviar relatório:",
+            erro
+        )
+
+        filtros_retorno["erro_envio"] = "1"
+
+    return redirect(
+        "/relatorios?"
+        + urlencode(filtros_retorno)
     )
 
 # --------------------------------------------------
